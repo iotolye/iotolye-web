@@ -1,0 +1,4 @@
+node_modules/
+iotolye.db
+uploads/
+*.log
