@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - iotolye</title>
+    <meta name="description" content="IoT dünyasından blog yazıları, rehberler ve haberler.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 28px;
+        }
+        .blog-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: 0.3s ease;
+            cursor: pointer;
+        }
+        .blog-card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+        .blog-card-image {
+            height: 200px;
+            background: linear-gradient(135deg, #0f1724, #1a2332);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .blog-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .blog-card-placeholder svg {
+            width: 40px;
+            height: 40px;
+            color: var(--primary);
+            opacity: 0.3;
+        }
+        .blog-card-body {
+            padding: 24px;
+        }
+        .blog-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .blog-card-tag {
+            padding: 3px 10px;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.15);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .blog-card-body h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .blog-card-body p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+        .blog-card-footer {
+            padding: 0 24px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .read-more {
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Blog detay */
+        .blog-detail {
+            display: none;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        .blog-detail.active {
+            display: block;
+        }
+        .blog-detail-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .blog-detail-back:hover { color: var(--primary); }
+        .blog-detail h1 {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+        .blog-detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .blog-detail-content {
+            font-size: 1rem;
+            line-height: 1.85;
+            color: var(--text-light, #cbd5e1);
+        }
+        .blog-detail-content p { margin-bottom: 16px; }
+        .blog-detail-content h2 { font-size: 1.3rem; margin: 32px 0 12px; color: var(--text); }
+        .blog-detail-content h3 { font-size: 1.1rem; margin: 24px 0 8px; color: var(--text); }
+        .blog-detail-content code {
+            background: var(--bg-card);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+        }
+        .blog-detail-content pre {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        .blog-detail-content pre code {
+            background: none;
+            padding: 0;
+        }
+        .blog-detail-content img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 16px 0;
+        }
+        .blog-detail-content ul, .blog-detail-content ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+        .blog-detail-content li { margin-bottom: 8px; }
+
+        .blog-list-container { display: block; }
+        .blog-list-container.hidden { display: none; }
+
+        @media (max-width: 768px) {
+            .blog-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <img src="assets/logo.svg" alt="iotolye logo" class="logo-svg">
+                <span>iot<span class="logo-accent">olye</span></span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/#hakkimizda">Hakkımızda</a></li>
+                <li><a href="/projeler">Projeler</a></li>
+                <li><a href="/videolar">Videolar</a></li>
+                <li><a href="/blog" class="active-link">Blog</a></li>
+                <li><a href="/#iletisim">İletişim</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="blog-list-container" id="blogList">
+        <section class="page-hero">
+            <div class="container">
+                <span class="section-tag">Blog</span>
+                <h1>Blog Yazıları</h1>
+                <p class="section-desc">IoT dünyasından yazılar, rehberler ve haberler.</p>
+            </div>
+        </section>
+
+        <section class="section" style="padding-top:0">
+            <div class="container">
+                <div class="blog-grid" id="blogGrid">
+                    <div class="empty-state">
+                        <p>Henüz blog yazısı eklenmedi. Yakında burada olacak!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Blog Detail -->
+    <section class="section" style="padding-top:120px">
+        <div class="container">
+            <div class="blog-detail" id="blogDetail">
+                <div class="blog-detail-back" onclick="showList()">&#8592; Tüm Yazılar</div>
+                <h1 id="detailTitle"></h1>
+                <div class="blog-detail-meta">
+                    <span id="detailTag"></span>
+                    <span id="detailDate"></span>
+                </div>
+                <div class="blog-detail-content" id="detailContent"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 iotolye.com - Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.getElementById('navToggle').addEventListener('click', () => {
+        document.getElementById('navLinks').classList.toggle('active');
+    });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Basit markdown -> HTML dönüştürücü
+    function renderContent(text) {
+        if (!text) return '';
+        let html = escapeHtml(text);
+        // Headings
+        html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+        html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+        // Bold & italic
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        // Code blocks
+        html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+        // Inline code
+        html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+        // Lists
+        html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+        html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+        // Paragraphs
+        html = html.replace(/\n\n/g, '</p><p>');
+        html = '<p>' + html + '</p>';
+        html = html.replace(/<p><\/p>/g, '');
+        html = html.replace(/<p>(<h[23]>)/g, '$1');
+        html = html.replace(/(<\/h[23]>)<\/p>/g, '$1');
+        html = html.replace(/<p>(<pre>)/g, '$1');
+        html = html.replace(/(<\/pre>)<\/p>/g, '$1');
+        html = html.replace(/<p>(<ul>)/g, '$1');
+        html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+        return html;
+    }
+
+    let allPosts = [];
+
+    async function loadBlog() {
+        try {
+            const res = await fetch('/api/blog/published');
+            allPosts = await res.json();
+            renderBlogList();
+        } catch (e) {}
+    }
+
+    function renderBlogList() {
+        const grid = document.getElementById('blogGrid');
+        if (allPosts.length === 0) return;
+
+        grid.innerHTML = allPosts.map(post => {
+            const imageHtml = post.image
+                ? `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}">`
+                : `<div class="blog-card-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>`;
+
+            const excerpt = (post.content || '').substring(0, 150).replace(/[#*`]/g, '') + '...';
+
+            return `
+            <article class="blog-card" onclick="showPost(${post.id})">
+                <div class="blog-card-image">${imageHtml}</div>
+                <div class="blog-card-body">
+                    <div class="blog-card-meta">
+                        ${post.tag ? `<span class="blog-card-tag">${escapeHtml(post.tag)}</span>` : ''}
+                        <span>${new Date(post.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    </div>
+                    <h3>${escapeHtml(post.title)}</h3>
+                    <p>${escapeHtml(excerpt)}</p>
+                </div>
+                <div class="blog-card-footer">
+                    <span class="read-more">Devamını Oku &#8594;</span>
+                </div>
+            </article>`;
+        }).join('');
+    }
+
+    function showPost(id) {
+        const post = allPosts.find(p => p.id === id);
+        if (!post) return;
+
+        document.getElementById('blogList').classList.add('hidden');
+        document.getElementById('blogDetail').classList.add('active');
+        document.getElementById('detailTitle').textContent = post.title;
+        document.getElementById('detailTag').innerHTML = post.tag ? `<span class="blog-card-tag">${escapeHtml(post.tag)}</span>` : '';
+        document.getElementById('detailDate').textContent = new Date(post.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('detailContent').innerHTML = renderContent(post.content);
+        window.scrollTo(0, 0);
+    }
+
+    function showList() {
+        document.getElementById('blogList').classList.remove('hidden');
+        document.getElementById('blogDetail').classList.remove('active');
+        window.scrollTo(0, 0);
+    }
+
+    loadBlog();
+    </script>
+</body>
+</html>

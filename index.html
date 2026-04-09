@@ -20,8 +20,9 @@
             </a>
             <ul class="nav-links" id="navLinks">
                 <li><a href="#hakkimizda">Hakkımızda</a></li>
-                <li><a href="#projeler">Projeler</a></li>
-                <li><a href="#videolar">Videolar</a></li>
+                <li><a href="/projeler">Projeler</a></li>
+                <li><a href="/videolar">Videolar</a></li>
+                <li><a href="/blog">Blog</a></li>
                 <li><a href="#iletisim">İletişim</a></li>
             </ul>
             <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç">
@@ -49,22 +50,8 @@
             <h1>Bağlan. Kodla.<br><span class="gradient-text">Üret.</span></h1>
             <p class="hero-subtitle">IoT projelerini keşfet, video eğitimlerle öğren ve kendi akıllı cihazlarını inşa et.</p>
             <div class="hero-buttons">
-                <a href="#projeler" class="btn btn-primary">Projeleri Keşfet</a>
-                <a href="#videolar" class="btn btn-outline">Videoları İzle</a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat">
-                    <span class="stat-number" data-target="25">0</span>+
-                    <span class="stat-label">Proje</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-number" data-target="50">0</span>+
-                    <span class="stat-label">Video</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-number" data-target="1000">0</span>+
-                    <span class="stat-label">Takipçi</span>
-                </div>
+                <a href="/projeler" class="btn btn-primary">Projeleri Keşfet</a>
+                <a href="/blog" class="btn btn-outline">Blog Yazıları</a>
             </div>
         </div>
         <div class="hero-scroll-indicator">
@@ -169,131 +156,6 @@
                 <div class="tech-item">
                     <div class="tech-icon-box">&#9881;</div>
                     <span>Home Assistant</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projeler -->
-    <section class="section" id="projeler">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag">Projeler</span>
-                <h2>Son Projeler</h2>
-                <p class="section-desc">IoT dünyasından ilham verici projeler.</p>
-            </div>
-            <div class="projects-grid" id="projectsGrid">
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                <polyline points="9 22 9 12 15 12 15 22"/>
-                            </svg>
-                        </div>
-                        <span class="project-tag">ESP32</span>
-                    </div>
-                    <div class="project-content">
-                        <h3>Akıllı Ev Otomasyon Sistemi</h3>
-                        <p>ESP32 ile ışık, sıcaklık ve güvenlik kontrolü. MQTT protokolü ile uzaktan yönetim.</p>
-                        <div class="project-meta">
-                            <span class="difficulty beginner">Başlangıç</span>
-                            <span class="project-date">Yakında</span>
-                        </div>
-                    </div>
-                </article>
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            </svg>
-                        </div>
-                        <span class="project-tag">Arduino</span>
-                    </div>
-                    <div class="project-content">
-                        <h3>Hava Kalitesi İzleme</h3>
-                        <p>Sensörlerle ortam havasını ölçen ve verileri buluta gönderen IoT cihazı.</p>
-                        <div class="project-meta">
-                            <span class="difficulty intermediate">Orta</span>
-                            <span class="project-date">Yakında</span>
-                        </div>
-                    </div>
-                </article>
-                <article class="project-card">
-                    <div class="project-image">
-                        <div class="project-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                                <line x1="8" y1="21" x2="16" y2="21"/>
-                                <line x1="12" y1="17" x2="12" y2="21"/>
-                            </svg>
-                        </div>
-                        <span class="project-tag">Raspberry Pi</span>
-                    </div>
-                    <div class="project-content">
-                        <h3>IoT Dashboard</h3>
-                        <p>Raspberry Pi üzerinde çalışan gerçek zamanlı sensör verisi görselleştirme paneli.</p>
-                        <div class="project-meta">
-                            <span class="difficulty advanced">İleri</span>
-                            <span class="project-date">Yakında</span>
-                        </div>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- Videolar -->
-    <section class="section section-dark" id="videolar">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag">Videolar</span>
-                <h2>Video Eğitimler</h2>
-                <p class="section-desc">IoT dünyasını video eğitimlerle keşfet.</p>
-            </div>
-            <div class="videos-grid" id="videosGrid">
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <div class="play-button">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                        </div>
-                        <span class="video-duration">Yakında</span>
-                    </div>
-                    <div class="video-info">
-                        <h3>ESP32 ile Başlangıç</h3>
-                        <p>ESP32 nedir, nasıl programlanır? Sıfırdan başlayın.</p>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <div class="play-button">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                        </div>
-                        <span class="video-duration">Yakında</span>
-                    </div>
-                    <div class="video-info">
-                        <h3>MQTT Protokolü</h3>
-                        <p>IoT cihazları arasında iletişim: MQTT temelleri.</p>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <div class="video-thumbnail">
-                        <div class="play-button">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                        </div>
-                        <span class="video-duration">Yakında</span>
-                    </div>
-                    <div class="video-info">
-                        <h3>Sensör Verileri ve Bulut</h3>
-                        <p>Sensör verilerini buluta göndermek ve görselleştirmek.</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -404,15 +266,16 @@
                     <h4>Hızlı Bağlantılar</h4>
                     <ul>
                         <li><a href="#hakkimizda">Hakkımızda</a></li>
-                        <li><a href="#projeler">Projeler</a></li>
-                        <li><a href="#videolar">Videolar</a></li>
+                        <li><a href="/projeler">Projeler</a></li>
+                        <li><a href="/videolar">Videolar</a></li>
+                        <li><a href="/blog">Blog</a></li>
                         <li><a href="#iletisim">İletişim</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h4>Kaynaklar</h4>
                     <ul>
-                        <li><a href="#">Blog</a></li>
+                        <li><a href="/blog">Blog</a></li>
                         <li><a href="#">GitHub</a></li>
                         <li><a href="#">YouTube</a></li>
                         <li><a href="#">Topluluk</a></li>

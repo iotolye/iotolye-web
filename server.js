@@ -23,6 +23,13 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
+// Sayfa route'ları (statik middleware'den ÖNCE olmalı)
+const sendOpts = { root: __dirname };
+app.get('/admin', (req, res) => { res.sendFile('admin.html', sendOpts); });
+app.get('/projeler', (req, res) => { res.sendFile('projeler.html', sendOpts); });
+app.get('/videolar', (req, res) => { res.sendFile('videolar.html', sendOpts); });
+app.get('/blog', (req, res) => { res.sendFile('blog.html', sendOpts); });
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -142,6 +149,17 @@ async function initDb() {
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT
+        )
+    `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS blog (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT,
+            tag TEXT,
+            image TEXT,
+            is_published INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
 
@@ -311,6 +329,45 @@ app.post('/api/subscribers', (req, res) => {
     }
 });
 
+// ===== BLOG ROUTES =====
+app.get('/api/blog', (req, res) => {
+    const posts = getAll('SELECT * FROM blog ORDER BY created_at DESC');
+    res.json(posts);
+});
+
+app.get('/api/blog/published', (req, res) => {
+    const posts = getAll('SELECT * FROM blog WHERE is_published = 1 ORDER BY created_at DESC');
+    res.json(posts);
+});
+
+app.post('/api/blog', requireAuth, upload.single('image'), (req, res) => {
+    const { title, content, tag } = req.body;
+    const image = req.file ? '/uploads/' + req.file.filename : null;
+    const result = run(
+        'INSERT INTO blog (title, content, tag, image) VALUES (?, ?, ?, ?)',
+        [title, content, tag, image]
+    );
+    res.json({ success: true, id: result.lastInsertRowid });
+});
+
+app.put('/api/blog/:id', requireAuth, upload.single('image'), (req, res) => {
+    const { title, content, tag, is_published } = req.body;
+    const post = getOne('SELECT * FROM blog WHERE id = ?', [Number(req.params.id)]);
+    if (!post) return res.status(404).json({ error: 'Yazı bulunamadı' });
+
+    const image = req.file ? '/uploads/' + req.file.filename : post.image;
+    run(
+        'UPDATE blog SET title=?, content=?, tag=?, image=?, is_published=? WHERE id=?',
+        [title, content, tag, image, is_published !== undefined ? Number(is_published) : post.is_published, Number(req.params.id)]
+    );
+    res.json({ success: true });
+});
+
+app.delete('/api/blog/:id', requireAuth, (req, res) => {
+    run('DELETE FROM blog WHERE id = ?', [Number(req.params.id)]);
+    res.json({ success: true });
+});
+
 // ===== DASHBOARD STATS =====
 app.get('/api/stats', requireAuth, (req, res) => {
     const projects = getOne('SELECT COUNT(*) as count FROM projects').count;
@@ -318,12 +375,8 @@ app.get('/api/stats', requireAuth, (req, res) => {
     const messages = getOne('SELECT COUNT(*) as count FROM messages').count;
     const unread = getOne('SELECT COUNT(*) as count FROM messages WHERE is_read = 0').count;
     const subscribers = getOne('SELECT COUNT(*) as count FROM subscribers').count;
-    res.json({ projects, videos, messages, unread, subscribers });
-});
-
-// Admin panel sayfası
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+    const blog = getOne('SELECT COUNT(*) as count FROM blog').count;
+    res.json({ projects, videos, messages, unread, subscribers, blog });
 });
 
 // ===== START =====

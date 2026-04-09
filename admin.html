@@ -435,6 +435,10 @@
                 <span class="nav-icon">&#9654;</span>
                 <span>Videolar</span>
             </a>
+            <a href="#" data-page="blog">
+                <span class="nav-icon">&#9997;</span>
+                <span>Blog</span>
+            </a>
             <a href="#" data-page="messages">
                 <span class="nav-icon">&#9993;</span>
                 <span>Mesajlar</span>
@@ -484,6 +488,10 @@
                     <div class="stat-value" id="statSubs">0</div>
                     <div class="stat-label">Abone</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statBlog">0</div>
+                    <div class="stat-label">Blog Yazısı</div>
+                </div>
             </div>
         </div>
 
@@ -529,6 +537,28 @@
                         </tr>
                     </thead>
                     <tbody id="videosTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BLOG -->
+        <div class="page-section" id="page-blog">
+            <div class="page-header">
+                <h2>Blog Yazıları</h2>
+                <button class="btn btn-primary" onclick="openBlogModal()">+ Yeni Yazı</button>
+            </div>
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Baslik</th>
+                            <th>Etiket</th>
+                            <th>Durum</th>
+                            <th>Tarih</th>
+                            <th>Islemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogTable"></tbody>
                 </table>
             </div>
         </div>
@@ -668,6 +698,36 @@
     </div>
 </div>
 
+<!-- BLOG MODAL -->
+<div class="modal-overlay" id="blogModal">
+    <div class="modal" style="max-width:640px">
+        <h3 id="blogModalTitle">Yeni Blog Yazısı</h3>
+        <form id="blogForm">
+            <input type="hidden" id="blogId">
+            <div class="form-field">
+                <label>Baslik</label>
+                <input type="text" id="blogTitle" required>
+            </div>
+            <div class="form-field">
+                <label>Etiket (IoT, ESP32, Tutorial...)</label>
+                <input type="text" id="blogTag" placeholder="IoT">
+            </div>
+            <div class="form-field">
+                <label>Icerik (Markdown destekli: ## baslik, **kalin**, `kod`, - liste)</label>
+                <textarea id="blogContent" style="min-height:250px"></textarea>
+            </div>
+            <div class="form-field">
+                <label>Kapak Gorseli</label>
+                <input type="file" id="blogImage" accept="image/*">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('blogModal')">Iptal</button>
+                <button type="submit" class="btn btn-primary">Yayinla</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -753,6 +813,7 @@ document.querySelectorAll('.sidebar-nav a').forEach(link => {
         if (page === 'projects') loadProjects();
         if (page === 'videos') loadVideos();
         if (page === 'messages') loadMessages();
+        if (page === 'blog') loadBlog();
         if (page === 'subscribers') loadSubscribers();
     });
 });
@@ -765,6 +826,7 @@ async function loadDashboard() {
     document.getElementById('statMessages').textContent = stats.messages;
     document.getElementById('statUnread').textContent = stats.unread;
     document.getElementById('statSubs').textContent = stats.subscribers;
+    document.getElementById('statBlog').textContent = stats.blog || 0;
 
     const badge = document.getElementById('unreadBadge');
     if (stats.unread > 0) {
@@ -966,6 +1028,72 @@ async function loadSubscribers() {
         </tr>
     `).join('');
 }
+
+// ===== BLOG =====
+async function loadBlog() {
+    const posts = await api('/api/blog');
+    const tbody = document.getElementById('blogTable');
+    if (posts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px">Henuz blog yazisi yok</td></tr>';
+        return;
+    }
+    tbody.innerHTML = posts.map(p => `
+        <tr>
+            <td><strong>${escapeHtml(p.title)}</strong></td>
+            <td>${escapeHtml(p.tag) || '-'}</td>
+            <td><span class="status-badge ${p.is_published ? 'published' : 'draft'}">${p.is_published ? 'Yayinda' : 'Taslak'}</span></td>
+            <td>${formatDate(p.created_at)}</td>
+            <td class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="editBlog(${p.id})">Duzenle</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteBlog(${p.id})">Sil</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openBlogModal(post = null) {
+    document.getElementById('blogModalTitle').textContent = post ? 'Yaziyi Duzenle' : 'Yeni Blog Yazisi';
+    document.getElementById('blogId').value = post ? post.id : '';
+    document.getElementById('blogTitle').value = post ? post.title : '';
+    document.getElementById('blogTag').value = post ? post.tag || '' : '';
+    document.getElementById('blogContent').value = post ? post.content || '' : '';
+    document.getElementById('blogImage').value = '';
+    document.getElementById('blogModal').classList.add('active');
+}
+
+async function editBlog(id) {
+    const posts = await api('/api/blog');
+    const post = posts.find(p => p.id === id);
+    if (post) openBlogModal(post);
+}
+
+async function deleteBlog(id) {
+    if (!confirm('Bu yaziyi silmek istediginize emin misiniz?')) return;
+    await api('/api/blog/' + id, { method: 'DELETE' });
+    showToast('Yazi silindi');
+    loadBlog();
+    loadDashboard();
+}
+
+document.getElementById('blogForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('blogId').value;
+    const formData = new FormData();
+    formData.append('title', document.getElementById('blogTitle').value);
+    formData.append('tag', document.getElementById('blogTag').value);
+    formData.append('content', document.getElementById('blogContent').value);
+    const file = document.getElementById('blogImage').files[0];
+    if (file) formData.append('image', file);
+
+    const url = id ? '/api/blog/' + id : '/api/blog';
+    const method = id ? 'PUT' : 'POST';
+    await fetch(url, { method, body: formData });
+
+    closeModal('blogModal');
+    showToast(id ? 'Yazi guncellendi' : 'Yazi yayinlandi');
+    loadBlog();
+    loadDashboard();
+});
 
 // ===== SETTINGS =====
 document.getElementById('passwordForm').addEventListener('submit', async (e) => {

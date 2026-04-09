@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videolar - iotolye</title>
+    <meta name="description" content="IoT eğitim videoları: ESP32, Arduino, sensörler ve daha fazlası.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <img src="assets/logo.svg" alt="iotolye logo" class="logo-svg">
+                <span>iot<span class="logo-accent">olye</span></span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/#hakkimizda">Hakkımızda</a></li>
+                <li><a href="/projeler">Projeler</a></li>
+                <li><a href="/videolar" class="active-link">Videolar</a></li>
+                <li><a href="/blog">Blog</a></li>
+                <li><a href="/#iletisim">İletişim</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-hero">
+        <div class="container">
+            <span class="section-tag">Videolar</span>
+            <h1>Video Eğitimler</h1>
+            <p class="section-desc">IoT dünyasını adım adım video eğitimlerle keşfet.</p>
+        </div>
+    </section>
+
+    <!-- Videos -->
+    <section class="section" style="padding-top:0">
+        <div class="container">
+            <div class="videos-grid" id="videosGrid">
+                <div class="empty-state">
+                    <p>Henüz video eklenmedi. Yakında burada olacak!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 iotolye.com - Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.getElementById('navToggle').addEventListener('click', () => {
+        document.getElementById('navLinks').classList.toggle('active');
+    });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    async function loadVideos() {
+        try {
+            const res = await fetch('/api/videos/published');
+            const videos = await res.json();
+            const grid = document.getElementById('videosGrid');
+            if (videos.length === 0) return;
+
+            grid.innerHTML = videos.map(v => {
+                let thumbHtml = '';
+                if (v.youtube_url) {
+                    const match = v.youtube_url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                    if (match) {
+                        thumbHtml = `<img src="https://img.youtube.com/vi/${match[1]}/mqdefault.jpg" alt="${escapeHtml(v.title)}" style="width:100%;height:100%;object-fit:cover">`;
+                    }
+                }
+                return `
+                <div class="video-card" ${v.youtube_url ? `onclick="window.open('${escapeHtml(v.youtube_url)}','_blank')"` : ''} style="cursor:pointer">
+                    <div class="video-thumbnail">
+                        ${thumbHtml || ''}
+                        <div class="play-button" ${thumbHtml ? 'style="position:absolute"' : ''}>
+                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                        <span class="video-duration">${escapeHtml(v.duration) || ''}</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>${escapeHtml(v.title)}</h3>
+                        <p>${escapeHtml(v.description)}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (e) {}
+    }
+
+    loadVideos();
+    </script>
+</body>
+</html>
